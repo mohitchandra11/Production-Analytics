@@ -53,12 +53,9 @@ The goal was to build a reliable operational intelligence system combining produ
 | `Power BI Production Dashboard/` | Power BI visuals and reporting |
 | `assets/` | Images, banners, visuals |
 
----
 ## Technical Overview
 
 I delivered the full solution across data engineering, modelling, SQL analytics, and BI reporting.
-
----
 
 ## 1. Data Engineering
 
