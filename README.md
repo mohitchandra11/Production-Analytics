@@ -68,31 +68,31 @@ I built a complete **end-to-end data engineering and analytics pipeline** that:
                              │
                              ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                   PYTHON DATA ENGINEERING PIPELINE                       │
+│                   PYTHON DATA ENGINEERING PIPELINE                      │
 ├─────────────────────────────────────────────────────────────────────────┤
 │  1. Data Extraction & Validation                                        │
 │     └─ Load CSV, handle encoding (UTF-8-sig), parse timestamps          │
-│                                                                          │
+│                                                                         │
 │  2. Data Cleaning & Transformation                                      │
 │     ├─ Filter date ranges (April-August 2024)                           │
 │     ├─ Clean equipment names (remove trailing patterns)                 │
 │     ├─ Parse maintenance durations (hours/minutes)                      │
 │     └─ Handle missing values and outliers                               │
-│                                                                          │
+│                                                                         │
 │  3. Feature Engineering                                                 │
-│     ├─ Prime vs Scrap classification (HL/HM/98 vs HX/HY/HZ)            │
+│     ├─ Prime vs Scrap classification (HL/HM/98 vs HX/HY/HZ)             │
 │     ├─ Parent-child coil relationships (CID → UID mapping)              │
 │     ├─ Gap analysis (tempo measurement between coils)                   │
 │     ├─ Product mix complexity scoring                                   │
 │     └─ Bottleneck identification (6 critical equipment pieces)          │
-│                                                                          │
+│                                                                         │
 │  4. Synthetic Cycle Time Modeling                                       │
 │     ├─ Anchor operations to REAL MES completion timestamps              │
-│     ├─ Work backwards to build equipment operation timeline             │
+│     ├─ Work backwards to build the equipment operation timeline         │
 │     ├─ Apply product-specific multipliers (thin vs thick)               │
 │     ├─ Factor in shift performance (A/B/C/D crews)                      │
 │     └─ Generate RUN/IDLE/FAULT event sequences                          │
-│                                                                          │
+│                                                                         │
 │  5. Dimensional Modeling (Star Schema)                                  │
 │     ├─ dim_equipment (17 production pieces, process order)              │
 │     ├─ dim_date_crew_schedule (4-crew rotation, day/night)              │
@@ -117,13 +117,11 @@ I built a complete **end-to-end data engineering and analytics pipeline** that:
                              │
                              ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                      AZURE SQL DATABASE                                  │
+│                      AZURE SQL DATABASE                                 │
 ├─────────────────────────────────────────────────────────────────────────┤
-│  • Star Schema Implementation                                            │
-│  • Indexed for Query Performance                                         │
-│  • Views for Complex Aggregations                                        │
-│  • Stored Procedures for KPI Calculations                                │
-│  • Row-Level Security (RLS) for Shift Supervisors                        │
+│  • Star Schema Implementation                                           │
+│  • Indexed for Query Performance                                        │
+│  • SQL Script for Analysis                                              │                        
 └────────────────────────────┬────────────────────────────────────────────┘
                              │
                              ▼
@@ -251,14 +249,6 @@ I built a complete **end-to-end data engineering and analytics pipeline** that:
        is_active BIT
    );
    
-   CREATE TABLE dim_date_crew_schedule (
-       production_date DATE PRIMARY KEY,
-       day_crew CHAR(1),
-       night_crew CHAR(1),
-       week_number INT,
-       month_name NVARCHAR(20)
-   );
-   
    -- Fact Tables
    CREATE TABLE fact_production_coil (
        coil_id NVARCHAR(50) PRIMARY KEY,
@@ -278,7 +268,7 @@ I built a complete **end-to-end data engineering and analytics pipeline** that:
        FOREIGN KEY (production_date) REFERENCES dim_date_crew_schedule(production_date)
    );
    
-   -- Additional fact tables: maintenance, cycles, events
+   -- Additional fact tables: maintenance, cycles, events, fact_production_coil
    -- Indexed on: equipment_id, production_date, shift_code, type_code
    ```
 
@@ -313,29 +303,6 @@ JOIN fact_coil_operation_cycle c ON e.equipment_id = c.equipment_id
 WHERE e.is_active = 1
 GROUP BY e.equipment_name, e.section, e.is_bottleneck_candidate
 ORDER BY time_share_pct DESC;
-
--- Example: Shift Performance KPIs
-CREATE PROCEDURE sp_calculate_shift_kpis
-    @start_date DATE,
-    @end_date DATE
-AS
-BEGIN
-    SELECT 
-        p.shift_code,
-        COUNT(p.coil_id) AS total_pieces,
-        COUNT(CASE WHEN p.is_prime = 1 THEN 1 END) AS prime_pieces,
-        CAST(COUNT(CASE WHEN p.is_prime = 1 THEN 1 END) AS FLOAT) 
-            / COUNT(p.coil_id) * 100 AS prime_rate_pct,
-        AVG(p.total_cycle_time_min) AS avg_cycle_time_min,
-        60.0 / AVG(p.total_cycle_time_min) AS pieces_per_hour,
-        AVG(p.gap_from_prev_completion_min) AS avg_completion_gap_min
-    FROM fact_production_coil p
-    WHERE p.production_date BETWEEN @start_date AND @end_date
-    GROUP BY p.shift_code
-    ORDER BY pieces_per_hour DESC;
-END;
-```
-
 ---
 
 ### **Phase 4: Power BI Dashboards**
@@ -352,7 +319,7 @@ END;
 2. **Bottleneck Analysis**
    - Equipment time contribution waterfall
    - Bottleneck severity matrix
-   - Operation vs idle time scatter plot
+   - Operation vs. Idle Time Scatter Plot
 
 3. **Maintenance & Downtime**
    - MTBF, MTTR reliability metrics
@@ -392,12 +359,6 @@ VAR IsBottleneck = MAX(dim_equipment[is_bottleneck_candidate])
 RETURN
     IF(IsBottleneck, TimeShare * 100, TimeShare * 50)
 
-// Example: MTBF (Mean Time Between Failures)
-MTBF = 
-VAR TotalProductionHours = [Total RUN Hours] + [Total IDLE Hours]
-VAR FailureCount = [Unplanned Events]
-RETURN
-    DIVIDE(TotalProductionHours, FailureCount, 0)
 ```
 
 ---
@@ -469,29 +430,20 @@ hot-rolling-plant-analytics/
 │
 ├── azure_data_factory/                      # ADF pipeline definitions
 │   ├── pipelines/
-│   │   ├── pipeline_production_data.json
-│   │   ├── pipeline_maintenance_data.json
-│   │   └── pipeline_equipment_cycles.json
+│   │   ├── pipeline_load_production_to_staging.json
+│   │   ├── pipeline_load_maintenance_to_staging.json
+│   │   └── pipeline_load_equipment_cycles_to_staging.json
 │   ├── datasets/
 │   │   ├── dataset_csv_source.json
-│   │   └── dataset_sql_sink.json
-│   └── linked_services/
-│       ├── ls_azure_blob_storage.json
-│       └── ls_azure_sql_database.json
+│   │   └── dataset_sql_sink.json     
 │
 ├── sql/                                     # SQL scripts
 │   ├── schema/
-│   │   ├── create_dimensions.sql
-│   │   ├── create_facts.sql
+│   │   ├── amsa_staging_tables_create_query.sql
+│   │   ├── azure_dbo_amsa_production_tables_create_query.sql
 │   │   └── create_indexes.sql
-│   ├── views/
-│   │   ├── vw_equipment_bottleneck_analysis.sql
-│   │   ├── vw_shift_performance_summary.sql
-│   │   └── vw_maintenance_reliability.sql
 │   └── stored_procedures/
-│       ├── sp_calculate_shift_kpis.sql
-│       ├── sp_calculate_mtbf_mttr.sql
-│       └── sp_identify_bottlenecks.sql
+│       ├── sp_staging_to_production_transformation.sql
 │
 ├── powerbi/                                 # Power BI files
 │   ├── dashboards/
@@ -500,23 +452,6 @@ hot-rolling-plant-analytics/
 │   │   ├── dashboard_3_maintenance_downtime.pbix
 │   │   ├── dashboard_4_shift_performance.pbix
 │   │   └── dashboard_5_product_mix_tempo.pbix
-│   ├── theme/
-│   │   ├── ArcelorMittal_PowerBI_Theme.json
-│   │   └── ArcelorMittal_PowerBI_Theme_Documentation.txt
-│   ├── dax_formulas/
-│   │   └── DAX_Formulas_Reference.txt
-│   └── prototypes/
-│       ├── dashboard_1_executive_summary_with_charts.html
-│       ├── dashboard_2_bottleneck_analysis.html
-│       ├── dashboard_3_maintenance_downtime.html
-│       ├── dashboard_4_shift_performance.html
-│       └── dashboard_5_product_mix_tempo.html
-│
-├── docs/                                    # Documentation
-│   ├── PowerBI_Implementation_Guide.txt
-│   ├── DAX_Formulas_Reference.txt
-│   ├── Azure_Data_Factory_Setup_Guide.md
-│   └── SQL_Database_Schema_Documentation.md
 │
 ├── notebooks/                               # Jupyter notebooks for exploration
 │   ├── 01_exploratory_data_analysis.ipynb
