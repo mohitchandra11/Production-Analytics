@@ -2,15 +2,9 @@
   <img src="assets/project_banner.png" width="100%" alt="Arcelor Mittal Steel Production Data Engineering Pipeline and Operations Analytics Banner">
 </p>
 
-<h1 align="center">Arcelor Mittal Steel Production Data Engineering Pipeline and Operations Analytics</h1>
-
-<p align="center">
-  <strong>Python • Pandas • NumPy • SQL (MySQL) • ETL Pipelines • Feature Engineering • Time-Series Modelling • Industrial Analytics • Maintenance Analytics • Process Engineering • Power BI • Manufacturing KPIs</strong>
-</p>
-
 <p align="center">
 
-# 🏭 Hot Rolling Plant Analytics: End-to-End Data Engineering & BI Solution
+# 🏭 Arcelor Mittal Hot Rolling Plant Production  Analytics: End-to-End Data Engineering & BI Solution
 
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
 [![Azure](https://img.shields.io/badge/Azure-Data_Factory-0078D4.svg)](https://azure.microsoft.com/)
