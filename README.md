@@ -201,6 +201,11 @@ I built a complete **end-to-end data engineering and analytics pipeline** that:
 **Output:** 8 production-ready CSV files (6 engineered + 2 raw reference)
 
 ---
+<p align="center">
+  <img src="assets/Master_Load_Pipeline.png" width="100%" alt="Arcelor Mittal Steel Production Data Engineering Pipeline Azure Data Factory">
+</p>
+
+<p align="center">
 
 ### **Phase 2: Azure Data Factory Deployment**
 
