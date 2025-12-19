@@ -303,6 +303,7 @@ JOIN fact_coil_operation_cycle c ON e.equipment_id = c.equipment_id
 WHERE e.is_active = 1
 GROUP BY e.equipment_name, e.section, e.is_bottleneck_candidate
 ORDER BY time_share_pct DESC;
+```
 ---
 ---
 ### **Phase 4: Power BI Dashboards**
@@ -467,61 +468,6 @@ hot-rolling-plant-analytics/
 
 ---
 
-## 🚀 **Getting Started**
-
-### **Prerequisites**
-
-- Python 3.9+
-- Azure Account (for ADF and SQL Database)
-- Power BI Desktop
-- Git
-
-### **Installation**
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/hot-rolling-plant-analytics.git
-   cd hot-rolling-plant-analytics
-   ```
-
-2. **Install Python dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Run the Python ETL pipeline**
-   ```bash
-   cd python_pipeline
-   python 01_load_data_updated.py
-   python 02_filter_april_august.py
-   # ... continue with all scripts in order
-   python 13_export_tables.py
-   ```
-
-4. **Deploy to Azure Data Factory**
-   - Import pipeline JSON files from `azure_data_factory/pipelines/`
-   - Configure linked services (Blob Storage, SQL Database)
-   - Set up triggers for scheduled runs
-
-5. **Set up Azure SQL Database**
-   ```bash
-   cd sql/schema
-   # Run scripts in order:
-   sqlcmd -S yourserver.database.windows.net -U username -P password -i create_dimensions.sql
-   sqlcmd -S yourserver.database.windows.net -U username -P password -i create_facts.sql
-   sqlcmd -S yourserver.database.windows.net -U username -P password -i create_indexes.sql
-   ```
-
-6. **Open Power BI dashboards**
-   ```bash
-   cd powerbi/dashboards
-   # Open .pbix files in Power BI Desktop
-   # Update data source connections to your Azure SQL Database
-   # Apply ArcelorMittal theme from powerbi/theme/
-   ```
-
----
-
 ## 🛠️ **Technologies Used**
 
 ### **Data Engineering**
@@ -583,16 +529,6 @@ hot-rolling-plant-analytics/
 - **Secure:** Row-level security for shift-specific data access
 - **Cost-effective:** Serverless SQL, pay-per-use ADF
 
----
-
-## 📖 **Documentation**
-
-Comprehensive documentation available in the `docs/` folder:
-
-- **PowerBI_Implementation_Guide.txt:** Step-by-step dashboard setup (50+ pages)
-- **DAX_Formulas_Reference.txt:** Complete DAX measure library (150+ measures)
-- **Azure_Data_Factory_Setup_Guide.md:** ADF pipeline deployment instructions
-- **SQL_Database_Schema_Documentation.md:** Database design and query examples
 
 ---
 
@@ -628,18 +564,6 @@ Comprehensive documentation available in the `docs/` folder:
 ✅ ROI analysis and quantification  
 ✅ Strategic recommendations  
 ✅ Change management (4-shift → 3-shift transition)  
-
----
-
-## 🤝 **Contributing**
-
-This is a portfolio project showcasing real-world data engineering work. However, if you'd like to suggest improvements or report issues:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/improvement`)
-3. Commit your changes (`git commit -m 'Add improvement'`)
-4. Push to the branch (`git push origin feature/improvement`)
-5. Open a Pull Request
 
 ---
 
