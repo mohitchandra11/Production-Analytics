@@ -567,43 +567,5 @@ hot-rolling-plant-analytics/
 
 ---
 
-## 📧 **Contact**
-
-**[Timothy Tshimauswu]**  
-Data  Scientist | Business Intelligence Analyst  
-
-- 📧 Email: timothytshimauswu@gmail.com
-- 💼 LinkedIn: [linkedin.com/in/yourprofile](https://linkedin.com/in/utshimauswu/)
-- 🐙 GitHub: [github.com/yourusername](https://github.com/TimothyTshimauswu)
-- 📊 Portfolio: [[yourportfolio.com](https://cloud-data-ai-portfolio-landing.vercel.app/)
-
----
-
-## 📄 **License**
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 **Acknowledgments**
-
-- **ArcelorMittal Vanderbijlpark Works** for providing the business context and real production data
-- **Process Engineering Team** for domain expertise and validation
-- **Production & Maintenance Teams** for adopting the solution and providing feedback
-
----
-
-## 📚 **Additional Resources**
-
-- [Power BI Theme Documentation](docs/ArcelorMittal_PowerBI_Theme_Documentation.txt)
-- [Interactive Dashboard Prototypes](powerbi/prototypes/)
-- [SQL Query Examples](sql/views/)
-- [Python Pipeline Scripts](python_pipeline/)
-
----
-
-<div align="center">
-
-**⭐ If this project helped you, please consider giving it a star! ⭐**
 
 </div>
